@@ -13,7 +13,6 @@ This package allows you to easily manage your ECS Cluster with a simple artisan 
 
 You can use this package with Laravel 10.x, and you should have the AWS CLI installed and configured.
 
-
     Please check if your AWS CLI is configured with the correct region and credentials.
     Refer to this link: https://docs.aws.amazon.com/cli/v1/userguide/install-macos.html if you need more information on that specific subject.
 
