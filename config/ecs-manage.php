@@ -22,5 +22,5 @@ return [
      * iTerm, Terminal, or LinuxTerminal. LinuxTerminal is run assuming
      * that gnome-terminal is installed.
      */
-    'default_terminal' => 'iTerm'
+    'default_terminal' => 'iTerm',
 ];

@@ -58,12 +58,11 @@ class EcsManageCommand extends Command
 
         $defaultTerminal = config('ecs-manage.default_terminal', 'iTerm');
 
-        $openTerminal = match($defaultTerminal){
+        $openTerminal = match ($defaultTerminal) {
             'iTerm' => ITerm::open($command),
             'Terminal' => Terminal::open($command),
             'LinuxTerminal' => LinuxTerminal::open($command),
         };
-
 
         $run = Process::run($openTerminal);
         echo $run->output();
