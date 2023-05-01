@@ -29,7 +29,6 @@ class EcsManage
 
     public array $defaultOptions;
 
-
     private AwsClientInterface $client;
 
     public function __construct()
@@ -48,7 +47,7 @@ class EcsManage
             'version' => '2014-11-13',
         ];
 
-        $this->client =  AWS::createClient('ecs', $this->defaultOptions);
+        $this->client = AWS::createClient('ecs', $this->defaultOptions);
     }
 
     public function getEnvironments()
@@ -119,7 +118,7 @@ class EcsManage
 
     public function listTaskDefinitions(): static
     {
-        $this->taskDefinitions = collect( $this->client->listTasks(['serviceName' => $this->selectedService, 'cluster' => $this->selectedCluster])->get('taskArns'));
+        $this->taskDefinitions = collect($this->client->listTasks(['serviceName' => $this->selectedService, 'cluster' => $this->selectedCluster])->get('taskArns'));
 
         return $this;
     }

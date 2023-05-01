@@ -6,7 +6,7 @@ class LinuxTerminal
 {
     public static function open($command)
     {
-       return "gnome-terminal -- ".$command;
+        return 'gnome-terminal -- '.$command;
 
     }
 }
