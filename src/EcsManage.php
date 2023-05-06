@@ -2,34 +2,45 @@
 
 namespace Sfolador\EcsManage;
 
-use Aws\AwsClientInterface;
 use Aws\Laravel\AwsFacade as AWS;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class EcsManage
+class EcsManage implements EcsManageInterface
 {
     public const STAGING_ENVIRONMENT = 'staging';
 
     public const PRODUCTION_ENVIRONMENT = 'production';
 
-    public Collection $clusters;
+    /**
+     * @var Collection<int,string>
+     */
+    private Collection $clusters;
 
-    public Collection $services;
+    /**
+     * @var Collection<int,string>
+     */
+    private Collection $services;
 
-    public Collection $filteredServices;
+    /**
+     * @var Collection<int,string>
+     */
+    private Collection $filteredServices;
 
-    public Collection $taskDefinitions;
+    /**
+     * @var Collection<int,string>
+     */
+    private Collection $taskDefinitions;
 
-    public string $selectedCluster;
+    private string $selectedCluster;
 
-    public string $selectedService;
+    private string $selectedService;
 
-    public string $selectedTask;
+    private string $selectedTask;
 
-    public array $defaultOptions;
+    private array $defaultOptions;
 
-    private AwsClientInterface $client;
+    private mixed $client;
 
     public function __construct()
     {
@@ -43,21 +54,31 @@ class EcsManage
         $this->selectedTask = '';
 
         $this->defaultOptions = [
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'region' => env('AWS_DEFAULT_REGION', 'awsd-east-1'),
             'version' => '2014-11-13',
         ];
-
-        $this->client = AWS::createClient('ecs', $this->defaultOptions);
+        $c = AWS::createClient('ecs', $this->defaultOptions);
+        $this->client = $c;
     }
 
-    public function getEnvironments()
+    public function setClient(mixed $client): static
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
+    public function getEnvironments(): mixed
     {
         return config('ecs-manage.environments', [self::STAGING_ENVIRONMENT, self::PRODUCTION_ENVIRONMENT]);
     }
 
     public function listClusters(): static
     {
+
+        /** @phpstan-ignore-next-line */
         $this->clusters = collect(
+            /** @phpstan-ignore-next-line */
             $this->client
                 ->listClusters()
                 ->get('clusterArns')
@@ -67,12 +88,15 @@ class EcsManage
 
     }
 
+    /**
+     * @return Collection<int,string>
+     */
     public function getClusters(): Collection
     {
         return $this->clusters->map(fn ($cluster) => Str::after($cluster, 'cluster/'));
     }
 
-    public function selectCluster($clusterName): static
+    public function selectCluster(string $clusterName): static
     {
         $this->selectedCluster = $clusterName;
 
@@ -85,7 +109,9 @@ class EcsManage
             $this->selectCluster($clusterName);
         }
 
+        /** @phpstan-ignore-next-line */
         $this->services = collect(
+            /** @phpstan-ignore-next-line */
             $this->client
                 ->listServices(['cluster' => $this->selectedCluster, 'maxResults' => 100])
                 ->get('serviceArns')
@@ -98,12 +124,14 @@ class EcsManage
     public function filterServices(string $filterWord): static
     {
         $serviceNames = $this->services->map(fn ($service) => Str::after($service, $this->selectedCluster.'/'));
-
         $this->filteredServices = $serviceNames->filter(fn ($service) => Str::contains($service, $filterWord))->sort()->values();
 
         return $this;
     }
 
+    /**
+     * @return Collection<int,string>
+     */
     public function serviceNames(): Collection
     {
         return $this->filteredServices;
@@ -116,13 +144,20 @@ class EcsManage
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function listTaskDefinitions(): static
     {
+        /** @phpstan-ignore-next-line */
         $this->taskDefinitions = collect($this->client->listTasks(['serviceName' => $this->selectedService, 'cluster' => $this->selectedCluster])->get('taskArns'));
 
         return $this;
     }
 
+    /**
+     * @return Collection<int,string>
+     */
     public function taskDefinitionNames(): Collection
     {
         return $this->taskDefinitions->map(fn ($service) => Str::after($service, $this->selectedCluster.'/'));

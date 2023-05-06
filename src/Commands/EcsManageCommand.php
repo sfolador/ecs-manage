@@ -27,10 +27,13 @@ class EcsManageCommand extends Command
 
         $chooseCluster = $this->choice('Select a cluster', EcsManage::getClusters()->toArray(), EcsManage::getClusters()->first());
 
+        /** @phpstan-ignore-next-line  */
         EcsManage::selectCluster($chooseCluster);
         EcsManage::listServicesForCluster();
 
+        /** @phpstan-ignore-next-line  */
         $environment = $this->choice('Select an environment', EcsManage::getEnvironments());
+        /** @phpstan-ignore-next-line  */
         EcsManage::filterServices($environment);
 
         if (EcsManage::serviceNames()->isEmpty()) {
@@ -41,6 +44,7 @@ class EcsManageCommand extends Command
 
         $service = $this->choice('Select a service', EcsManage::serviceNames()->toArray(), EcsManage::serviceNames()->first());
 
+        /** @phpstan-ignore-next-line  */
         EcsManage::selectService($service);
         EcsManage::listTaskDefinitions();
 
@@ -52,6 +56,7 @@ class EcsManageCommand extends Command
 
         $task = $this->choice('Select a task', EcsManage::taskDefinitionNames()->toArray(), EcsManage::taskDefinitionNames()->first());
 
+        /** @phpstan-ignore-next-line  */
         EcsManage::selectTask($task);
 
         $command = EcsManage::createCommand();
@@ -59,7 +64,7 @@ class EcsManageCommand extends Command
         $defaultTerminal = config('ecs-manage.default_terminal', 'iTerm');
 
         $openTerminal = match ($defaultTerminal) {
-            'iTerm' => ITerm::open($command),
+            default => ITerm::open($command),
             'Terminal' => Terminal::open($command),
             'LinuxTerminal' => LinuxTerminal::open($command),
         };

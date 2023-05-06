@@ -4,7 +4,7 @@ namespace Sfolador\EcsManage\Terminals;
 
 class ITerm
 {
-    public static function open($command)
+    public static function open(string $command): string
     {
         return 'osascript -e "
       tell application \"iTerm2\"

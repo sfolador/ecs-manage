@@ -2,6 +2,7 @@
 
 namespace Sfolador\EcsManage;
 
+use Aws\Laravel\AwsServiceProvider;
 use Sfolador\EcsManage\Commands\EcsManageCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -19,5 +20,14 @@ class EcsManageServiceProvider extends PackageServiceProvider
             ->name('ecs-manage')
             ->hasConfigFile()
             ->hasCommand(EcsManageCommand::class);
+    }
+
+    public function registeringPackage(): void
+    {
+        $this->app->bind(EcsManageInterface::class, function () {
+            return new EcsManage();
+        });
+
+        $this->app->register(AwsServiceProvider::class);
     }
 }
